@@ -1,0 +1,5 @@
+{
+  "name": "AvatarGenius",
+  "description": "Transform your photos into 12 unique artistic avatars using Gemini 2.5 Flash. Upload a selfie, choose from styles like 3D, Anime, or Cyberpunk, and edit results with text prompts.",
+  "requestFramePermissions": []
+}
