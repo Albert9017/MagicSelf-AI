@@ -5,7 +5,7 @@ import { EditModal } from './components/EditModal';
 import { Button } from './components/Button';
 import { GeneratedImage, ImageAsset, StyleOption } from './types';
 import { generateImageVariation } from './services/geminiService';
-import { Sparkles, Camera, ArrowLeft, CheckCircle2, Trash2 } from 'lucide-react';
+import { Sparkles, ArrowLeft, CheckCircle2, Trash2, Wand2 } from 'lucide-react';
 
 const STYLES: StyleOption[] = [
   {
@@ -167,6 +167,7 @@ const App: React.FC = () => {
 
   const handleReplaceImage = (e?: React.MouseEvent) => {
     e?.preventDefault();
+    e?.stopPropagation();
     if (generatedImages.length > 0) {
       const confirmReplace = window.confirm("Replace photo? This will clear your current generated avatars.");
       if (!confirmReplace) return;
@@ -190,21 +191,36 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 pb-20">
       {/* Navbar */}
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
+          <div className="flex justify-between h-20 items-center">
             {/* Logo Click - Soft Reset */}
             <div 
-              className="flex items-center gap-2 cursor-pointer group" 
+              className="flex items-center gap-3 cursor-pointer group" 
               onClick={resetApp}
               title="Return to Home"
             >
-              <div className="bg-indigo-600 p-2 rounded-lg group-hover:bg-indigo-700 transition-colors">
-                <Camera className="w-5 h-5 text-white" />
+              {sourceImage ? (
+                <div className="relative">
+                  <img 
+                    src={sourceImage.data} 
+                    alt="My Avatar" 
+                    className="w-10 h-10 rounded-full object-cover border-2 border-indigo-100 shadow-sm group-hover:border-indigo-300 transition-all" 
+                  />
+                  <div className="absolute -bottom-1 -right-1 bg-indigo-600 rounded-full p-1 border border-white">
+                    <Sparkles className="w-2 h-2 text-white" />
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-indigo-600 p-2.5 rounded-xl group-hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">
+                  <Wand2 className="w-6 h-6 text-white" />
+                </div>
+              )}
+              <div className="flex flex-col">
+                <span className="font-bold text-xl tracking-tight text-gray-900 group-hover:text-indigo-600 transition-colors leading-none">
+                  MagicSelf <span className="text-indigo-600">AI</span>
+                </span>
               </div>
-              <span className="font-bold text-xl tracking-tight group-hover:text-indigo-600 transition-colors">
-                Avatar<span className="text-indigo-600 group-hover:text-indigo-800">Genius</span>
-              </span>
             </div>
 
             {sourceImage && (
@@ -226,27 +242,30 @@ const App: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!sourceImage ? (
           /* Upload State */
-          <div className="max-w-2xl mx-auto mt-12 animate-fade-in">
-            <div className="text-center mb-10">
-              <h1 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
-                Turn your photo into <br />
-                <span className="text-indigo-600">Artistic Avatars</span>
+          <div className="max-w-3xl mx-auto mt-8 animate-fade-in">
+            <div className="text-center mb-12">
+              <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight">
+                MagicSelf <span className="text-indigo-600">AI</span>
               </h1>
-              <p className="text-lg text-gray-600 max-w-lg mx-auto">
-                Upload a photo and let Gemini 2.5 Flash transform it into 12 unique creative styles.
-                Select your favorites and edit them with simple text prompts.
+              <p className="text-xl md:text-2xl text-gray-800 font-medium mb-6 italic leading-relaxed">
+                Instantly “Change the Lens,”<br/> Define Infinite Versions of Yourself.
+              </p>
+              <p className="text-base text-gray-500 max-w-lg mx-auto">
+                Upload a photo and let our AI transform it into 12 unique creative styles.
+                Customize each result with simple text prompts.
               </p>
             </div>
+            
             <ImageUploader onImageSelected={processFile} />
             
             {/* Style Preview Cards (Static) */}
-            <div className="mt-12">
-               <p className="text-center text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Available Styles</p>
-               <div className="grid grid-cols-3 md:grid-cols-6 gap-3 opacity-60 pointer-events-none grayscale hover:grayscale-0 transition-all">
+            <div className="mt-16">
+               <p className="text-center text-sm font-semibold text-gray-400 uppercase tracking-wider mb-6">Available Styles</p>
+               <div className="grid grid-cols-3 md:grid-cols-6 gap-4 opacity-60 pointer-events-none grayscale hover:grayscale-0 transition-all">
                 {STYLES.map((style) => (
-                  <div key={style.name} className="bg-white p-2 rounded-lg border border-gray-200 text-center text-xs flex flex-col items-center justify-center h-20">
-                    <span className="text-xl block mb-1">{style.icon}</span>
-                    {style.label}
+                  <div key={style.name} className="bg-white p-3 rounded-xl border border-gray-200 text-center text-xs flex flex-col items-center justify-center h-24 shadow-sm">
+                    <span className="text-2xl block mb-2">{style.icon}</span>
+                    <span className="font-medium">{style.label}</span>
                   </div>
                 ))}
               </div>
@@ -263,10 +282,7 @@ const App: React.FC = () => {
                   <div className="flex justify-between items-center mb-3">
                     <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Original</h3>
                     <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleReplaceImage(e);
-                      }}
+                      onClick={handleReplaceImage}
                       className="text-gray-400 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500"
                       title="Remove and upload new photo"
                       aria-label="Remove photo"
@@ -275,7 +291,7 @@ const App: React.FC = () => {
                     </button>
                   </div>
                   
-                  <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 mb-4 shadow-inner relative group">
+                  <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 mb-4 shadow-inner relative group cursor-pointer" onClick={handleReplaceImage}>
                      <img 
                       src={sourceImage.data} 
                       alt="Original" 
@@ -283,16 +299,10 @@ const App: React.FC = () => {
                      />
                      {/* Overlay for Replace Action */}
                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center">
-                        <button 
-                          onClick={(e) => {
-                             e.stopPropagation();
-                             handleReplaceImage(e);
-                          }}
-                          className="bg-white/90 backdrop-blur-md border border-white/50 text-gray-900 px-4 py-2 rounded-full text-sm font-medium hover:bg-white transition-colors flex items-center gap-2 shadow-lg"
-                        >
+                        <div className="bg-white/90 backdrop-blur-md border border-white/50 text-gray-900 px-4 py-2 rounded-full text-sm font-medium hover:bg-white transition-colors flex items-center gap-2 shadow-lg transform translate-y-2 group-hover:translate-y-0 duration-200">
                           <Trash2 className="w-4 h-4 text-red-500" />
                           Replace
-                        </button>
+                        </div>
                      </div>
                   </div>
                   
